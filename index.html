@@ -139,6 +139,21 @@
       object-fit: contain;
     }
 
+    /* Loading Spinner */
+    .loading-spinner {
+      border: 4px solid #f1f1f1;
+      border-top: 4px solid #6a11cb;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) {
       .container {
         flex-direction: column;
@@ -198,7 +213,7 @@
       }
 
       const placeholder = document.getElementById("image-placeholder");
-      placeholder.innerHTML = "Generating image...";
+      placeholder.innerHTML = `<div class="loading-spinner"></div>`;
 
       try {
         const imageBlob = await query({ inputs: prompt });
