@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text-to-Image UI</title>
+  <style>
+    /* General Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: flex;
+      max-width: 1000px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .input-panel, .output-panel {
+      padding: 30px;
+      flex: 1;
+    }
+
+    .input-panel {
+      border-right: 1px solid #eee;
+    }
+
+    .output-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      resize: none;
+      margin-bottom: 20px;
+    }
+
+    .style-options {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .style-options button {
+      background: #f1f1f1;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .style-options button:hover {
+      background: #ddd;
+    }
+
+    .advanced-settings {
+      margin-bottom: 20px;
+    }
+
+    .advanced-settings summary {
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .generate-button {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.3s;
+    }
+
+    .generate-button:hover {
+      transform: scale(1.05);
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 300px;
+      background: #f1f1f1;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .image-placeholder img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .input-panel {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Input Panel -->
+    <div class="input-panel">
+      <h1>Made by Tuber92sv</h1>
+      <p class="tagline">Turn Words into Art</p>
+      <textarea id="prompt" placeholder="Describe the image you want to create... (e.g., 'A futuristic city at sunset')"></textarea>
+      <div class="style-options">
+        <button>Realistic</button>
+        <button>Anime</button>
+        <button>Watercolor</button>
+        <button>Cyberpunk</button>
+      </div>
+      <details class="advanced-settings">
+        <summary>Advanced Settings</summary>
+        <p>Sliders and options go here...</p>
+      </details>
+      <button class="generate-button" onclick="generateImage()">Create Image</button>
+    </div>
+
+    <!-- Output Panel -->
+    <div class="output-panel">
+      <div class="image-placeholder" id="image-placeholder">Your image will appear here</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
+    const headers = { "Authorization": "Bearer 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" };
+
+    async function query(payload) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(payload),
+      });
+      return await response.blob();
+    }
+
+    async function generateImage() {
+      const prompt = document.getElementById("prompt").value;
+      if (!prompt) {
+        alert("Please enter a description first!");
+        return;
+      }
+
+      const placeholder = document.getElementById("image-placeholder");
+      placeholder.innerHTML = "Generating image...";
+
+      try {
+        const imageBlob = await query({ inputs: prompt });
+        const imageUrl = URL.createObjectURL(imageBlob);
+        placeholder.innerHTML = `<img src="${imageUrl}" alt="Generated Image">`;
+      } catch (error) {
+        placeholder.innerHTML = "Failed to generate image. Please try again.";
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
