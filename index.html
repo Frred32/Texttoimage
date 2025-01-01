@@ -20,8 +20,58 @@
       align-items: center;
       min-height: 100vh;
       padding: 20px;
+      position: relative;
     }
 
+    /* Credits Button */
+    .credits-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: white;
+      background-opacity: 0.8;
+      backdrop-filter: blur(10px);
+      border-radius: 25px;
+      padding: 10px 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .credits-button:hover {
+      background-opacity: 0.9;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .credits-button:active {
+      transform: scale(0.98);
+    }
+
+    .credits-button .icon {
+      width: 18px;
+      height: 18px;
+      background: rgba(106, 17, 203, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #6a11cb;
+    }
+
+    .credits-button .text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* Container */
     .container {
       background: white;
       border-radius: 15px;
@@ -167,6 +217,13 @@
   </style>
 </head>
 <body>
+  <!-- Credits Button -->
+  <div class="credits-button">
+    <span class="icon">$</span>
+    <span class="text" id="credits-display">Credits: $1.00</span>
+  </div>
+
+  <!-- Main Container -->
   <div class="container">
     <!-- Input Panel -->
     <div class="input-panel">
@@ -194,7 +251,14 @@
 
   <script>
     const API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
-    const headers = { "Authorization": "Bearer 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" };
+    const headers = { "Authorization": "Bearer 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" };
+
+    let credits = 1.00; // Initial credits
+
+    // Function to update the credits display
+    function updateCreditsDisplay() {
+      document.getElementById("credits-display").textContent = `Credits: ${credits.toFixed(2)}`;
+    }
 
     async function query(payload) {
       const response = await fetch(API_URL, {
@@ -212,6 +276,16 @@
         return;
       }
 
+      // Check if credits are sufficient
+      if (credits < 0.10) {
+        alert("Not enough credits to generate an image. Please add more credits.");
+        return;
+      }
+
+      // Deduct credits
+      credits -= 0.10;
+      updateCreditsDisplay();
+
       const placeholder = document.getElementById("image-placeholder");
       placeholder.innerHTML = `<div class="loading-spinner"></div>`;
 
@@ -222,8 +296,14 @@
       } catch (error) {
         placeholder.innerHTML = "Failed to generate image. Please try again.";
         console.error(error);
+        // Refund credits if generation fails
+        credits += 0.10;
+        updateCreditsDisplay();
       }
     }
+
+    // Initialize credits display
+    updateCreditsDisplay();
   </script>
 </body>
 </html>
