@@ -261,30 +261,25 @@
       opacity: 0.9;
     }
 
-    /* Mobile Close Button */
-    .mobile-only {
-      display: none;
+    /* Close Button */
+    .close-button {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .close-button:hover {
+      opacity: 0.9;
     }
 
     @media (max-width: 768px) {
-      .mobile-only {
-        display: block;
-        margin-top: 20px;
-        background: linear-gradient(135deg, #6a11cb, #2575fc);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background 0.3s;
-        width: 100%;
-      }
-
-      .mobile-only:hover {
-        opacity: 0.9;
-      }
-
       .container {
         flex-direction: column;
       }
@@ -340,8 +335,8 @@
         aria-label="Enter credit code"
       />
       <button onclick="redeemCode()">Redeem</button>
-      <!-- Close Button for Mobile -->
-      <button class="mobile-only" onclick="closeModal()">Close</button>
+      <!-- Single Close Button -->
+      <button class="close-button" onclick="closeModal()">Close</button>
     </div>
   </div>
 
@@ -392,16 +387,6 @@
       document.getElementById("creditModal").style.display = "none";
       document.getElementById("creditModal").setAttribute("aria-hidden", "true");
     }
-
-    // Function to handle the Esc key press
-    function handleKeyDown(event) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
-
-    // Add event listener for the Esc key
-    document.addEventListener("keydown", handleKeyDown);
 
     // Function to redeem the credit code
     function redeemCode() {
