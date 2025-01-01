@@ -313,7 +313,13 @@
       </div>
       <details class="advanced-settings">
         <summary>Advanced Settings</summary>
-        <p>Sliders and options go here...</p>
+        <div>
+          <label for="model-select">Select Model:</label>
+          <select id="model-select">
+            <option value="stabilityai/stable-diffusion-3.5-large">Stable Diffusion 3.5</option>
+            <option value="black-forest-labs/FLUX.1-dev">FLUX.1 Dev</option>
+          </select>
+        </div>
       </details>
       <button class="generate-button" onclick="generateImage()">Create Image</button>
     </div>
@@ -341,7 +347,7 @@
   </div>
 
   <script>
-    const API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
+    let API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large"; // Default model
     const headers = { "Authorization": "Bearer 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" };
 
     // Function to get credits from localStorage
@@ -455,6 +461,10 @@
       credits -= 0.10;
       updateCredits(credits);
       updateCreditsDisplay();
+
+      // Update API_URL based on selected model
+      const modelSelect = document.getElementById("model-select");
+      API_URL = `https://api-inference.huggingface.co/models/${modelSelect.value}`;
 
       const placeholder = document.getElementById("image-placeholder");
       placeholder.innerHTML = `<div class="loading-spinner"></div>`;
