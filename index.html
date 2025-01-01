@@ -399,14 +399,24 @@
         return;
       }
 
-      // Example valid code
-      if (code === "ADD10") {
+      // List of valid credit codes
+      const validCodes = {
+        "ADD10": 1.00, // Existing code
+        "FGE21": 1.00, // New code 1
+        "L40SF": 1.00, // New code 2
+        "FUCK2": 1.00, // New code 3
+        "LCODE": 1.00, // New code 4
+        "R124T": 1.00, // New code 5
+      };
+
+      // Check if the entered code is valid
+      if (validCodes.hasOwnProperty(code)) {
         let credits = getCredits();
-        credits += 1.00; // Add 10 credits
+        credits += validCodes[code]; // Add the corresponding credits
         updateCredits(credits);
         updateCreditsDisplay();
         addClaimedCode(code); // Mark the code as claimed
-        alert("10 credits added successfully!");
+        alert(`${validCodes[code]} credits added successfully!`);
         closeModal();
       } else {
         alert("Invalid credit code. Please try again.");
