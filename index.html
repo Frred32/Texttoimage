@@ -28,8 +28,7 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      background: white;
-      background-opacity: 0.8;
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
       border-radius: 25px;
       padding: 10px 20px;
@@ -43,7 +42,7 @@
     }
 
     .credits-button:hover {
-      background-opacity: 0.9;
+      opacity: 0.9;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
       transform: translateY(-2px);
     }
@@ -170,7 +169,7 @@
 
     .image-placeholder {
       width: 100%;
-      height: 300px;
+      height: 400px;
       background: #f1f1f1;
       border-radius: 10px;
       display: flex;
@@ -180,13 +179,14 @@
       font-size: 14px;
       margin-bottom: 20px;
       overflow: hidden;
+      position: relative;
     }
 
     .image-placeholder img {
-      max-width: 100%;
-      max-height: 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       border-radius: 10px;
-      object-fit: contain;
     }
 
     /* Loading Spinner */
@@ -204,7 +204,87 @@
       100% { transform: rotate(360deg); }
     }
 
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 300px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content label {
+      display: block;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .modal-content button {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    .modal-content button:hover {
+      opacity: 0.9;
+    }
+
+    /* Mobile Close Button */
+    .mobile-only {
+      display: none;
+    }
+
     @media (max-width: 768px) {
+      .mobile-only {
+        display: block;
+        margin-top: 20px;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+        width: 100%;
+      }
+
+      .mobile-only:hover {
+        opacity: 0.9;
+      }
+
       .container {
         flex-direction: column;
       }
@@ -218,7 +298,7 @@
 </head>
 <body>
   <!-- Credits Button -->
-  <div class="credits-button">
+  <div class="credits-button" onclick="openModal()" role="button" aria-label="View Credits">
     <span class="icon">$</span>
     <span class="text" id="credits-display">Credits: $1.00</span>
   </div>
@@ -249,15 +329,103 @@
     </div>
   </div>
 
+  <!-- Credit Code Modal -->
+  <div class="modal" id="creditModal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-content">
+      <label for="creditCode">Credit Code:</label>
+      <input
+        type="text"
+        id="creditCode"
+        placeholder="Enter your code here."
+        aria-label="Enter credit code"
+      />
+      <button onclick="redeemCode()">Redeem</button>
+      <!-- Close Button for Mobile -->
+      <button class="mobile-only" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
   <script>
     const API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large";
     const headers = { "Authorization": "Bearer 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" };
 
-    let credits = 1.00; // Initial credits
+    // Function to get credits from localStorage
+    function getCredits() {
+      const credits = localStorage.getItem("userCredits");
+      return credits ? parseFloat(credits) : 1.00; // Default to 1.00 if no credits exist
+    }
+
+    // Function to update credits in localStorage
+    function updateCredits(newCredits) {
+      localStorage.setItem("userCredits", newCredits.toFixed(2));
+    }
+
+    // Function to get claimed codes from localStorage
+    function getClaimedCodes() {
+      const claimedCodes = localStorage.getItem("claimedCodes");
+      return claimedCodes ? JSON.parse(claimedCodes) : [];
+    }
+
+    // Function to add a code to the claimed codes list in localStorage
+    function addClaimedCode(code) {
+      const claimedCodes = getClaimedCodes();
+      if (!claimedCodes.includes(code)) {
+        claimedCodes.push(code);
+        localStorage.setItem("claimedCodes", JSON.stringify(claimedCodes));
+      }
+    }
 
     // Function to update the credits display
     function updateCreditsDisplay() {
-      document.getElementById("credits-display").textContent = `Credits: ${credits.toFixed(2)}`;
+      const credits = getCredits();
+      document.getElementById("credits-display").textContent = `Credits: $${credits.toFixed(2)}`;
+    }
+
+    // Function to open the modal
+    function openModal() {
+      document.getElementById("creditModal").style.display = "flex";
+      document.getElementById("creditModal").setAttribute("aria-hidden", "false");
+    }
+
+    // Function to close the modal
+    function closeModal() {
+      document.getElementById("creditModal").style.display = "none";
+      document.getElementById("creditModal").setAttribute("aria-hidden", "true");
+    }
+
+    // Function to handle the Esc key press
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    }
+
+    // Add event listener for the Esc key
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Function to redeem the credit code
+    function redeemCode() {
+      const code = document.getElementById("creditCode").value.trim();
+      const claimedCodes = getClaimedCodes();
+
+      // Check if the code has already been claimed
+      if (claimedCodes.includes(code)) {
+        alert("This code has already been claimed.");
+        return;
+      }
+
+      // Example valid code
+      if (code === "ADD10") {
+        let credits = getCredits();
+        credits += 10.00; // Add 10 credits
+        updateCredits(credits);
+        updateCreditsDisplay();
+        addClaimedCode(code); // Mark the code as claimed
+        alert("10 credits added successfully!");
+        closeModal();
+      } else {
+        alert("Invalid credit code. Please try again.");
+      }
     }
 
     async function query(payload) {
@@ -266,6 +434,9 @@
         headers: headers,
         body: JSON.stringify(payload),
       });
+      if (!response.ok) {
+        throw new Error("Failed to generate image");
+      }
       return await response.blob();
     }
 
@@ -276,6 +447,9 @@
         return;
       }
 
+      // Fetch current credits
+      let credits = getCredits();
+
       // Check if credits are sufficient
       if (credits < 0.10) {
         alert("Not enough credits to generate an image. Please add more credits.");
@@ -284,6 +458,7 @@
 
       // Deduct credits
       credits -= 0.10;
+      updateCredits(credits);
       updateCreditsDisplay();
 
       const placeholder = document.getElementById("image-placeholder");
@@ -298,11 +473,12 @@
         console.error(error);
         // Refund credits if generation fails
         credits += 0.10;
+        updateCredits(credits);
         updateCreditsDisplay();
       }
     }
 
-    // Initialize credits display
+    // Initialize credits display on page load
     updateCreditsDisplay();
   </script>
 </body>
